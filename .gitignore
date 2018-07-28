@@ -1,6 +1,9 @@
 # Compiled files
 dist/
 
+# Uploaded files
+uploads/
+
 # Config file
 config/config.js
 

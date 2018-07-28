@@ -17,6 +17,7 @@ import './styles/styles.scss';
 import MyHome from './components/MyHome/MyHome';
 import UserProfile from './components/UserProfile/UserProfile';
 import UserNotFound from './components/UserProfile/UserNotFound';
+import CreatePost from './components/CreatePost/CreatePost';
 
 
 render((
@@ -25,7 +26,8 @@ render((
       <Switch>
         <Route exact path="/" component={MyHome}/>
         <PrivateRoute exact path="/main" component={MainPage} />
-        <PrivateRoute path="/users/:username" component={UserProfile} />
+        <PrivateRoute exact path="/users/:username" component={UserProfile} />
+        <PrivateRoute exact path="/main/post" component={CreatePost} />
         <PrivateRoute path="/notfounduser" component={UserNotFound} />
         <Route component={NotFound}/>
       </Switch>

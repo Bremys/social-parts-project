@@ -30,7 +30,8 @@ const UserSchema = new mongoose.Schema({
       type: Date,
       default: Date.now()
     },
-    followedCategories: [{type: String, default: []}],
+    categoriesBuy: [{type: String, default: []}],
+    categoriesSell: [{type: String, default: []}],
     posts: [
       {type: mongoose.Schema.Types.ObjectId, default: []}
     ],
