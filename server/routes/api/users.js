@@ -1,5 +1,6 @@
 const User = require('../../models/User');
-const UserSession = require('../../models/UserSession');
+const Post = require('../../models/Post');
+const Category = require('../../models/Category');
 
 
 module.exports = (app) => {
@@ -28,6 +29,48 @@ module.exports = (app) => {
             })
             .catch((err) => next(err));
     });
+
+
+    app.get('/api/users/:username/posts/:postnum', (req, res, next) => {
+        const {username, postnum} = req.params;
+        console.log(req.params);
+        User.findOne({username: username})
+            .exec()
+            .then((user) => {
+                Post.find()
+                .where('_id').in(user.posts)
+                .sort({postDate: 'descending'})
+                .limit(postnum + 1)
+                .exec()
+                .then((posts) => {
+                    if(postnum >= posts.length){
+                        return res.send({
+                            hasMore: false
+                        });
+                    }
+                    return res.send({
+                        posts: posts.map((chosen) => {
+                            return {
+                                postId: chosen._id,
+                                poster: {
+                                    username: chosen.posterUsername,
+                                    lastName: chosen.posterLastName,
+                                    firstName: chosen.posterFirstName,
+                                },
+                                postType: chosen.postType,
+                                title: chosen.title,
+                                price: chosen.price,
+                                content: chosen.content,
+                                album: chosen.album,
+                            }
+                        }),
+                        hasMore: true,
+                    });
+                });
+            })
+            .catch((err) => next(err));
+    });
+
 
     app.post('/api/users/:username/follow', (req, res, next) => {
         const { currUser } = req.cookies;
@@ -92,6 +135,53 @@ module.exports = (app) => {
             .catch((err) => next(err));
         })
         .catch((err) => next(err));
+    });
+
+    app.post('/api/users/contactsupdate', (req, res) => {
+        const {
+            sellerName,
+            openingHours,
+            sellerEmail,
+            phoneNumber,
+            sellerDesc,
+            location,
+            categories,
+        } = req.body;
+
+        const { currUser } = req.cookies;
+        User.findById(currUser)
+        .exec()
+        .then((user) => {
+            user.sellerName = sellerName;
+            user.openingHours = openingHours;
+            user.sellerEmail = sellerEmail;
+            user.phoneNumber = phoneNumber;
+            user.sellerDesc = sellerDesc;
+            user.location = location;
+            user.save()
+            .then((savedUser) => {
+                Category.find()
+                .exec()
+                .then((allDocs) => {
+                    const names = allDocs.map(doc => doc.name);
+                    categories.forEach((category) => {
+                        if(names.includes(category)) {
+                            allDocs[names.indexOf(category)].followers.push(savedUser._id);
+                            allDocs[names.indexOf(category)].save();
+                        }
+                        else {
+                            const newCategory = new Category();
+                            newCategory.name = category;
+                            newCategory.followers = [savedUser._id]
+                            newCategory.save();
+                        }
+                    });
+                    res.send({
+                        success: true,
+                    })
+                })
+            });
+        });
     });
 };
 

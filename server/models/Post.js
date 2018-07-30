@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const PostSchema = new mongoose.Schema({
     poster: mongoose.Schema.Types.ObjectId,
+    posterUsername: {type: String},
+    posterFirstName: {type: String},
+    posterLastName: {type: String},
     postType: {type: String, enum: ['BUY', 'SELL'], default: ''},
     postDate: {
       type: Date,
@@ -9,9 +12,16 @@ const PostSchema = new mongoose.Schema({
     },
     title: String,
     price: Number,
-    categories: [{type: String}],
+    categories: {type: [String]},
     content: String,
-    album: [{data: Buffer, contentType: String, default: []}],
+    album: [{data: String, contentType: String}],
+    comments: [
+        {
+          comment: String, 
+          username: String,
+          lastName: String,
+          firstName: String,
+        }],
   });
   
   module.exports = mongoose.model('Post', PostSchema);

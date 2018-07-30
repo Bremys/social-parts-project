@@ -67,7 +67,7 @@ const App = ({ children }) => (
     style={
     { backgroundColor: "#dec3be" ,
       padding: "5px",
-      margin: "5px",
+      margin: "5px",    
     } 
   }
   center middle

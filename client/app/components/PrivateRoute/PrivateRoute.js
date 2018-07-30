@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 import 'whatwg-fetch';
 import {emitter} from "../SignOutComp/SignOutComp.js"
+import openSocket from 'socket.io-client';
+
 
 const Loading = () => <div> Loading...</div>;
 
@@ -17,17 +19,20 @@ class PrivateRoute extends Component {
 
     this.state = {
       isLoading: false,
-      isAuthenticated: false
+      isAuthenticated: false,
+      user: {},
+      socket: null,
     };
   }
 
   componentWillMount() {
-    this.setState({
-      isLoading: true
-    });
-    const {
-      isAuthenticated
+    let {
+      socket,
     } = this.state;
+
+    this.setState({
+      isLoading: true,
+    });
     fetch("/authenticate", 
     {method: "POST",
     headers: {
@@ -35,10 +40,15 @@ class PrivateRoute extends Component {
     }})
     .then((res) => res.json())
     .then((json) => {
+      socket = (socket !== null) && socket.connected? 
+                socket : openSocket('http://localhost:8000');
       this.setState({
         isLoading: false,
-        isAuthenticated: json.success
+        isAuthenticated: json.success,
+        user: json.user,
+        socket: socket,
       });
+      socket.emit('storeUser', json.userId);
       emitter.emit('authenticationCheck', json.success);
       console.log(json);
     });
@@ -47,7 +57,9 @@ class PrivateRoute extends Component {
     render() {
       let {
         isLoading,
-        isAuthenticated
+        isAuthenticated,
+        user,
+        socket,
       } = this.state;
 
       let { 
@@ -64,7 +76,7 @@ class PrivateRoute extends Component {
           return <Loading></Loading>
         }
         else if (isAuthenticated) {
-          return <Component {...props} />
+          return <Component user={user} socket={socket} {...props} />
         }
         else {
           return (

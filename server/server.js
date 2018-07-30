@@ -26,20 +26,33 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// const http = require('http').Server(app);
-// const io = require('socket.io')(http);
-// io.on('connection', function(socket){
-//   console.log('a user connected');
-//   socket.on('disconnect', function(){
-//     console.log('User Disconnected');
-//   });
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+app.set('connectedClients', []);
 
-//   socket.on('example_message', function(msg){
-//     console.log('message: ' + msg);
-//   });
-// });
-// io.listen(8000);
 
+io.on('connection', function(socket){
+  socket.on('storeUser', (userData) => {
+    app.get('connectedClients').push({
+      userId: userData,
+      socket: socket,
+    });
+  });
+  
+  socket.on('disconnect', () => {
+    console.log("Ok");
+    app.set('connectedClients',
+      app.get('connectedClients').filter((client) => client.socket.id !== socket.id)
+    );
+  });
+
+  socket.on('example_message', function(msg){
+    socket.emit('newFeed', msg);
+    console.log('message: ' + msg);
+  });
+});
+
+io.listen(8000);
 // API routes
 require('./routes')(app);
 
@@ -81,4 +94,7 @@ app.listen(port, '0.0.0.0', (err) => {
   console.info('>>> 🌎 Open http://0.0.0.0:%s/ in your browser.', port);
 });
 
+
+
 module.exports = app;
+

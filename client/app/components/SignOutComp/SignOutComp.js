@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import styled from "styled-components";
 import { EventEmitter } from 'fbemitter';
-import { withRouter, Redirect } from 'react-router';
+import { withRouter } from 'react-router';
+import { socket } from '../SignInComp/SignInComp';
 import 'whatwg-fetch';
 
 const emitter = new EventEmitter();
@@ -60,6 +61,7 @@ class SignOut extends Component {
             loggedIn: false,
             isLoading: false
         });
+        socket.disconnect();
         emitter.emitter('authenticationCheck', false);
       });
   }

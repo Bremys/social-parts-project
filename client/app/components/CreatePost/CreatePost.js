@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import ImageLoader from 'react-image-file';
 import {Cell, Grid} from 'styled-css-grid';
 import styled from 'styled-components'
 import 'whatwg-fetch';
-
 
 const StyledImg = styled.img`
     display: block;
@@ -175,8 +173,6 @@ class CreatePost extends Component {
             method: 'POST',
             body: data,
         })
-        .then((res) => res.json())
-        .then((json) => console.log("Posted! ", json))
       }
   
 
@@ -199,90 +195,89 @@ class CreatePost extends Component {
         
 
         
-        
-      return (
-          <>
-        <Grid columns={5}>
-        <Cell center middle
-            left={3}
-            top={1}
-        >
-        <input 
-            type="text" 
-            placeholder="Title"
-            onChange={this.handleTitle}
-            />
-          <br/>
-          <textarea 
-          onChange={this.handleContent}          
-          />
-          <br/>
-          <input 
-            type="file" 
-            onChange={this.handleFiles}
-            formEncType={'multipart/form-data'}
-            />
-            <br/>
-            <select
-                onChange={this.handleSelect}
+        return (
+            <>
+            <Grid columns={5}>
+            <Cell center middle
+                left={3}
+                top={1}
             >
-                <option value={"BUY"}>Buy</option>
-                <option value={"SELL"}>Sell</option>
-            </select>
+            <input 
+                type="text" 
+                placeholder="Title"
+                onChange={this.handleTitle}
+                />
+            <br/>
+            <textarea 
+            onChange={this.handleContent}          
+            />
             <br/>
             <input 
-                type="number"
-                onChange={this.handlePrice}
-                placeholder="Price"
-            />
-          <br/>
-          <input 
-                type="text"
-                onChange={this.handleCategories}
-                placeholder="Categories - split with ,"
-            />
-          <br/>
-        </Cell>
-        <Cell center middle left={3} top={2}>
-        <button onClick={this.uploadSelected}>{"+"}</button>
-            {
-                currImage !== -1? <ImageNav/> : null
-            }
-          <br/>
-          <button onClick={this.uploadPost}>Post</button>
-        </Cell>
-          
+                type="file" 
+                onChange={this.handleFiles}
+                formEncType={'multipart/form-data'}
+                />
+                <br/>
+                <select
+                    onChange={this.handleSelect}
+                >
+                    <option value={"BUY"}>Buy</option>
+                    <option value={"SELL"}>Sell</option>
+                </select>
+                <br/>
+                <input 
+                    type="number"
+                    onChange={this.handlePrice}
+                    placeholder="Price"
+                />
+            <br/>
+            <input 
+                    type="text"
+                    onChange={this.handleCategories}
+                    placeholder="Categories - split with ,"
+                />
+            <br/>
+            </Cell>
+            <Cell center middle left={3} top={2}>
+            <button onClick={this.uploadSelected}>{"+"}</button>
                 {
-                    uploadedImagesUrl.map((image, i) => {
-                        return (
-                            <Cell
-                            top={3 + Math.floor(i/5)}
-                            left={(i%5)+1}
-                            style={
-                                {
-                                    width: "200px",
-                                    height: "150px",
-                                    position: "relative",
-                                    display: "inline-block",
-                                    overflow: "hidden",
-                                    margin: "0",
-                                  
-                                }
-                            }
-                            onClick={
-                                () => this.setState({currImage: i})
-                            }
-                            key={i}>
-                                {
-                                    currImage === i? <ChosenImg src={image}/> : <StyledImg src={image}/>
-                                }
-                            </Cell>
-                        );
-                    })
+                    currImage !== -1? <ImageNav/> : null
                 }
-            </Grid>
-        </>
-      );
+            <br/>
+            <button onClick={this.uploadPost}>Post</button>
+            </Cell>
+            
+                    {
+                        uploadedImagesUrl.map((image, i) => {
+                            return (
+                                <Cell
+                                top={3 + Math.floor(i/5)}
+                                left={(i%5)+1}
+                                style={
+                                    {
+                                        width: "200px",
+                                        height: "150px",
+                                        position: "relative",
+                                        display: "inline-block",
+                                        overflow: "hidden",
+                                        margin: "0",
+                                    
+                                    }
+                                }
+                                onClick={
+                                    () => this.setState({currImage: i})
+                                }
+                                key={i}>
+                                    {
+                                        currImage === i? <ChosenImg src={image}/> : <StyledImg src={image}/>
+                                    }
+                                </Cell>
+                            );
+                        })
+                    }
+                </Grid>
+            </>
+        );
     }
   }
 

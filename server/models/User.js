@@ -30,8 +30,6 @@ const UserSchema = new mongoose.Schema({
       type: Date,
       default: Date.now()
     },
-    categoriesBuy: [{type: String, default: []}],
-    categoriesSell: [{type: String, default: []}],
     posts: [
       {type: mongoose.Schema.Types.ObjectId, default: []}
     ],
@@ -40,7 +38,13 @@ const UserSchema = new mongoose.Schema({
     ],
     followers: [
         {type: mongoose.Schema.Types.ObjectId, default: []}
-    ]
+    ],
+    sellerName: {type: String},
+    openingHours: {type: String},
+    sellerEmail: {type: String},
+    phoneNumber: {type: String},
+    sellerDesc: {type: String},
+    location: {type: String},
   });
   
   UserSchema.methods.generateHash = function(password) {

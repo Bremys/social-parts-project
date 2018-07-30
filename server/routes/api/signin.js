@@ -2,9 +2,10 @@ const User = require('../../models/User');
 const UserSession = require('../../models/UserSession');
 
 
-module.exports = (app) => {
+module.exports = (app, io) => {
 
   app.post('/api/account/signout', (req, res, next) => {
+    console.log(app.get('connectedClients'))
     let {sessionId} = req.cookies;
         if (sessionId === undefined) {
             return res.send({ success: false});
@@ -46,15 +47,9 @@ module.exports = (app) => {
         
         username = username.toLowerCase();
         username = username.trim();
-
-        console.log(username);
-
         User.find({
           username: username
-        }, (err, users) => {
-
-          console.log(users);
-          
+        }, (err, users) => {          
           if (err) {
             console.log('err 2:', err);
             return res.send({
@@ -92,77 +87,7 @@ module.exports = (app) => {
             res.cookie('sessionId', doc._id);
             res.cookie('currUser', doc.userId);
             return res.send({
-              success: true,
-              message: 'Valid sign in',
-            });
-          });
-        });
-      });
-
-    app.post('/api/account/signin', (req, res, next) => {
-        const { body } = req;
-        let {username, password} = body;
-    
-        if (!username) {
-          return res.send({
-            success: false,
-            message: 'Error: Username cannot be blank.'
-          });
-        }
-        if (!password) {
-          return res.send({
-            success: false,
-            message: 'Error: Password cannot be blank.'
-          });
-        }
-        
-        username = username.toLowerCase();
-        username = username.trim();
-
-        console.log(username);
-
-        User.find({
-          username: username
-        }, (err, users) => {
-
-          console.log(users);
-          
-          if (err) {
-            console.log('err 2:', err);
-            return res.send({
-              success: false,
-              message: 'Error: server error'
-            });
-          }
-          if (users.length != 1) {
-            return res.send({
-              success: false,
-              message: 'Error: Invalid'
-            });
-          }
-    
-          const user = users[0];
-          if (!user.validPassword(password)) {
-            return res.send({
-              success: false,
-              message: 'Error: Invalid'
-            });
-          }
-    
-          // Otherwise correct user
-          const userSession = new UserSession();
-          userSession.userId = user._id;
-          userSession.save((err, doc) => {
-            if (err) {
-              console.log(err);
-              return res.send({
-                success: false,
-                message: 'Error: server error'
-              });
-            }
-            
-            res.cookie('sessionId', doc._id);
-            return res.send({
+              userId: doc.userId,
               success: true,
               message: 'Valid sign in',
             });
