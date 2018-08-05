@@ -23,6 +23,12 @@ module.exports = (app) => {
                     found: true,
                     firstName: users[0].firstName,
                     lastName: users[0].lastName,
+                    sellerName: users[0].sellerName,
+                    openingHours: users[0].openingHours,
+                    sellerEmail: users[0].sellerEmail,
+                    phoneNumber: users[0].phoneNumber,
+                    sellerDesc: users[0].sellerDesc,
+                    location: users[0].location,
                     following: users[0].followers
                                .filter((user) => user.equals(currUser)).length > 0,
                 });
@@ -32,7 +38,9 @@ module.exports = (app) => {
 
 
     app.get('/api/users/:username/posts/:postnum', (req, res, next) => {
-        const {username, postnum} = req.params;
+        console.log("I am here");
+        let {username, postnum} = req.params;
+        postnum = parseInt(postnum);
         console.log(req.params);
         User.findOne({username: username})
             .exec()
@@ -40,16 +48,18 @@ module.exports = (app) => {
                 Post.find()
                 .where('_id').in(user.posts)
                 .sort({postDate: 'descending'})
-                .limit(postnum + 1)
                 .exec()
                 .then((posts) => {
+                    console.log("Post num is: ", postnum);
                     if(postnum >= posts.length){
                         return res.send({
                             hasMore: false
                         });
                     }
+                    const newPosts = posts.slice(0, postnum + 1);
+                    console.log("newPosts length is: ", newPosts.length);
                     return res.send({
-                        posts: posts.map((chosen) => {
+                        posts: newPosts.map((chosen) => {
                             return {
                                 postId: chosen._id,
                                 poster: {
@@ -183,6 +193,36 @@ module.exports = (app) => {
             });
         });
     });
+
+    app.get('/api/users/search/:term/:postnum', (req, res) => {
+        let { term, postnum } = req.params;
+        postnum = parseInt(postnum);
+        User.find()
+        .sort({signUpDate: 'descending'})
+        .exec()
+        .then((users) => {
+            const substrUsers = users.filter((user) => {
+                return (user.username.search(term) !== -1)  || 
+                       (user.firstName.search(term) !== -1) ||
+                       (user.lastName.search(term) !== -1);
+            })
+            if(postnum >= substrUsers.length){
+                return res.send({
+                    hasMore: false
+                });
+            }
+
+            return res.send({
+                users: substrUsers.slice(0, postnum+1).map((chosen) => {
+                    return {
+                        username: chosen.username
+                    }
+                }),
+                hasMore: true,
+            });
+        });
+    });
+
 };
 
 

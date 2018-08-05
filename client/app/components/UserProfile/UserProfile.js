@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import {Grid, Cell} from 'styled-css-grid';
 import InfiniteScroll from 'react-infinite-scroller';
 import Post from '../Post/Post';
@@ -11,12 +12,19 @@ class UserProfile extends Component {
     this.state = {
         firstName: '',    
         lastName: '',
+        sellerName: undefined,
+        openingHours: undefined,
+        sellerEmail: undefined,
+        phoneNumber: undefined,
+        sellerDesc: undefined,
+        location: undefined,
         following: false,
         posts: [],
         hasMoreItems: true,
     };
     this.followUser = this.followUser.bind(this);
     this.loadItems = this.loadItems.bind(this);
+    this.checkExist = (str) => (str !== undefined) && (str !== '');
   }
 
   followUser(){
@@ -50,6 +58,12 @@ class UserProfile extends Component {
               this.setState({
                   firstName: json.firstName,
                   lastName: json.lastName,
+                  sellerName: json.sellerName,
+                  openingHours: json.openingHours,
+                  sellerEmail: json.sellerEmail,
+                  phoneNumber: json.phoneNumber,
+                  sellerDesc: json.sellerDesc,
+                  location: json.location,
                   following: json.following,
               });   
               console.log(this.state);
@@ -73,6 +87,12 @@ class UserProfile extends Component {
                 this.setState({
                     firstName: json.firstName,
                     lastName: json.lastName,
+                    sellerName: json.sellerName,
+                    openingHours: json.openingHours,
+                    sellerEmail: json.sellerEmail,
+                    phoneNumber: json.phoneNumber,
+                    sellerDesc: json.sellerDesc,
+                    location: json.location,
                     following: json.following,
                     posts: [],
                     hasMoreItems: true,
@@ -90,13 +110,14 @@ class UserProfile extends Component {
     const {
       posts
     } = this.state;
-
     fetch(`/api/users/${this.props.match.params.username}/posts/${posts.length}`)
     .then((res) => res.json())
     .then((json) => {
-      const {hasMore } = json;
+      const { hasMore } = json;
       if (hasMore){
         const newPosts = json.posts;
+        console.log("newPosts length: ", newPosts.length);
+        console.log("posts length: ", posts.length);
         this.setState({
             posts: newPosts,
             hasMoreItems: hasMore,
@@ -116,20 +137,92 @@ class UserProfile extends Component {
         firstName,
         lastName,
         following,
+        sellerName,
+        openingHours,
+        sellerEmail,
+        phoneNumber,
+        sellerDesc,
+        location,
         posts,
         hasMoreItems
     } = this.state;
     
+    const {
+        showPosts
+    } = this.props;
+
+    const {
+        username
+    } = this.props.match.params;
+
+    const head = showPosts? 
+                 (<h1>{firstName}    {lastName}</h1>) :
+                 (<Link to={`/users/${username}`}><h1>{firstName}    {lastName}</h1></Link>); 
+
+
     return (
     <>
         <Grid
             columns={"1"}
             rows={"3"}
         >
-            <Cell> <h1>{firstName}    {lastName}</h1></Cell>
+            <Cell>
+                {head}
+                <br/>
+                {this.checkExist(sellerName) &&
+                (   <>
+                    <br/>
+                    <label>Shop name: {sellerName}</label>
+                    <br/>
+                    </>
+                )
+                }
+                {this.checkExist(openingHours) && 
+                (   <>
+                    <br/>
+                    <label>Opening Hours: {openingHours}</label>
+                    <br/>   
+                    </>
+                )
+                }
+                {this.checkExist(sellerEmail) && 
+                (   <>
+                    <br/>
+                    <label>Business Email: {sellerEmail}</label>
+                    <br/>
+                    </>
+                )
+                }
+                {this.checkExist(phoneNumber) && 
+                (   <>
+                    <br/>
+                    <label>Phone Number: {phoneNumber}</label>
+                    <br/>
+                    </>
+                )
+                }
+                {this.checkExist(sellerDesc) && 
+                (   <>
+                    <br/>
+                    <label>About: {sellerDesc}</label>
+                    <br/>
+                    </>
+                )
+                }
+                {this.checkExist(location) && 
+                (   <>
+                    <br/>
+                    <label>Location: {location}</label>
+                    <br/>
+                    </>
+                )
+                }
+            </Cell>
             <Cell><button onClick={this.followUser}>{
                 following? "Unfollow" : "Follow"
             }</button></Cell>
+            <br/>
+            { showPosts &&
             <Cell>
             <InfiniteScroll
             pageStart={0}
@@ -154,7 +247,7 @@ class UserProfile extends Component {
               );
             })}
             </InfiniteScroll>
-            </Cell>
+            </Cell>}
         </Grid>
     </>
     );

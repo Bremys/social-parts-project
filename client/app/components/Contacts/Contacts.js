@@ -172,7 +172,7 @@ class Contacts extends Component {
             value={phoneNumber}
             onChange={this.phoneNumberChange}
           /><br />
-          <input
+          <textarea
             type="text"
             placeholder="Seller Description"
             value={sellerDesc}
@@ -190,7 +190,7 @@ class Contacts extends Component {
             value={categories}
             onChange={this.categoriesChange}
           /><br />
-          <button onClick={this.onSubmit}>Sign Up</button>
+          <button onClick={this.onSubmit}>Update Contacts</button>
         </div>
 
       </div>

@@ -105,7 +105,8 @@ module.exports = (app) => {
 
     app.get('/api/fetchposts/:postnum', (req, res) => {
         const { currUser } = req.cookies;
-        const { postnum } = req.params;
+        let { postnum } = req.params;
+        postnum = parseInt(postnum);
         User.findById(currUser)
         .exec()
         .then((user) => {
@@ -176,6 +177,41 @@ module.exports = (app) => {
         })
     });
 
+    app.get('/api/posts/search/:term/:postnum', (req, res) => {
+        let { term, postnum } = req.params;
+        postnum = parseInt(postnum);
+        Post.find()
+        .sort({postDate: 'descending'})
+        .exec()
+        .then((posts) => {
+            const substrPosts = posts.filter((post) => {
+                return (post.content.search(term) !== -1) || (post.title.search(term) !== -1)
+            })
+            if(postnum >= substrPosts.length){
+                return res.send({
+                    hasMore: false
+                });
+            }
+            return res.send({
+                posts: substrPosts.slice(0, postnum + 1).map((chosen) => {
+                    return {
+                        postId: chosen._id,
+                        poster: {
+                            username: chosen.posterUsername,
+                            lastName: chosen.posterLastName,
+                            firstName: chosen.posterFirstName,
+                        },
+                        postType: chosen.postType,
+                        title: chosen.title,
+                        price: chosen.price,
+                        content: chosen.content,
+                        album: chosen.album,
+                    }
+                }),
+                hasMore: true,
+            });
+        });
+    });
 };
 
 
