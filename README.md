@@ -1,7 +1,5 @@
 # social-parts-project
 
-# WIP
-
 A social network for buying and selling car parts as a project in the course "Advanced Topics in Distributed and Reactive Programming".
 
 I have used the [MERN-boilerplate](https://github.com/arkon/MERN-boilerplate) project as a basis.
